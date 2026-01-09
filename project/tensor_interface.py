@@ -64,7 +64,7 @@ def st_visualize_storage(tensor: Tensor, selected_position: int, max_size=10):
 
 
 def st_visualize_tensor(
-    tensor: Tensor, highlighted_index, strides=None, show_value=True
+        tensor: Tensor, highlighted_index, strides=None, show_value=True
 ):
     depth = tensor.shape[0]
     rows = tensor.shape[1] if len(tensor.shape) > 1 else 1
@@ -244,7 +244,7 @@ def render_tensor_sandbox(hide_function_defs: bool):
         storage_size = len(tensor_data)
         if tensor_size != storage_size:
             st.error(
-                f"Tensor data storage must define all values in shape ({tensor_size} != {storage_size    })"
+                f"Tensor data storage must define all values in shape ({tensor_size} != {storage_size})"
             )
         else:
             st.error(e)
