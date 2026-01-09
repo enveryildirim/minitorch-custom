@@ -9,12 +9,12 @@ from datasets import load_dataset
 
 class SentimentCNN(nn.Module):
     def __init__(
-        self,
-        embedding_dim,
-        feature_map_size=100,
-        kernel_sizes=[3, 4, 5],
-        freeze_embeddings=True,
-        drop_prob=0.5,
+            self,
+            embedding_dim,
+            feature_map_size=100,
+            kernel_sizes=[3, 4, 5],
+            freeze_embeddings=True,
+            drop_prob=0.5,
     ):
         """
         Initialize the model by setting up the layers.
@@ -75,7 +75,7 @@ class SentimentCNN(nn.Module):
 
 # training loop
 def train(
-    model, data_train, data_val, learning_rate=0.001, max_epochs=50, batch_size=128
+        model, data_train, data_val, learning_rate=0.001, max_epochs=50, batch_size=128
 ):
     # loss and optimization functions
     criterion = nn.BCELoss()
@@ -93,10 +93,10 @@ def train(
         train_loss = 0
         n_batches = 0
         for batch_num, example_num in enumerate(
-            range(0, n_training_samples, batch_size)
+                range(0, n_training_samples, batch_size)
         ):
-            y = torch.tensor(y_train[example_num : example_num + batch_size])
-            x = torch.tensor(X_train[example_num : example_num + batch_size])
+            y = torch.tensor(y_train[example_num: example_num + batch_size])
+            x = torch.tensor(X_train[example_num: example_num + batch_size])
             model.zero_grad()
 
             # get the output from the model
@@ -133,12 +133,12 @@ def train(
         print(
             "Train loss: {:.6f}...".format(train_loss / n_batches),
             f"Train correct: {train_correct}/{len(X_train)}",
-            f"Train accuracy: {train_correct/len(X_train):.2%}",
+            f"Train accuracy: {train_correct / len(X_train):.2%}",
         )
         print(
             "Val loss: {:.6f}".format(val_loss.item()),
             f"Val correct: {val_correct}/{len(X_val)}",
-            f"Val accuracy: {val_correct/len(X_val):.2%}",
+            f"Val accuracy: {val_correct / len(X_val):.2%}",
         )
         print()
 
