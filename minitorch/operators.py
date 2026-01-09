@@ -12,58 +12,87 @@ from typing import Callable, Iterable
 
 
 def mul(x: float, y: float) -> float:
-    "$f(x, y) = x * y$"
+    """
+    Multiplication function: $f(x, y) = x * y$.
+    This will be a fundamental building block for tensor multiplications later.
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return x * y
 
 
 def id(x: float) -> float:
-    "$f(x) = x$"
+    """
+    Identity function: $f(x) = x$.
+    Returns the input as is. Its derivative is always 1.
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return x
 
+
 def add(x: float, y: float) -> float:
-    "$f(x, y) = x + y$"
+    """
+    Addition function: $f(x, y) = x + y$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return x + y
 
 
 def neg(x: float) -> float:
-    "$f(x) = -x$"
+    """
+    Negation function: $f(x) = -x$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return -x
 
+
 def lt(x: float, y: float) -> float:
-    "$f(x) =$ 1.0 if x is less than y else 0.0"
+    """
+    Less than check: 1.0 if $x < y$, else 0.0.
+    We use 1.0 and 0.0 to represent logical operations with continuous values.
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return 1.0 if x < y else 0.0
 
+
 def eq(x: float, y: float) -> float:
-    "$f(x) =$ 1.0 if x is equal to y else 0.0"
+    """
+    Equality function: $f(x) = 1.0$ if $x == y$ else $0.0$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return 1.0 if x == y else 0.0
 
+
 def max(x: float, y: float) -> float:
-    "$f(x) =$ x if x is greater than y else y"
+    """
+    Maximum function: $f(x) = x$ if $x > y$ else $y$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return x if x > y else y
 
+
 def is_close(x: float, y: float) -> float:
-    "$f(x) = |x - y| < 1e-2$"
+    """
+    Check if two values are close: $f(x) = |x - y| < 1e-2$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return abs(x - y) < 1e-2
 
+
 def sigmoid(x: float) -> float:
     r"""
-    $f(x) =  \frac{1.0}{(1.0 + e^{-x})}$
+    Sigmoid activation function: $f(x) = \frac{1}{1 + e^{-x}}$.
+
+    This function squashes the input between 0 and 1.
+    For numerical stability, we use two different formulas based on the sign of x
+    to avoid overflow errors with very large positive or negative values.
 
     (See https://en.wikipedia.org/wiki/Sigmoid_function )
 
@@ -77,9 +106,12 @@ def sigmoid(x: float) -> float:
     # raise NotImplementedError('Need to implement for Task 0.1')
     return 1.0 / (1.0 + exp(-x)) if x >= 0 else exp(x) / (1.0 + exp(x))
 
+
 def relu(x: float) -> float:
     """
-    $f(x) =$ x if x is greater than 0, else 0
+    ReLU (Rectified Linear Unit): x if x > 0, else 0.
+    This is the most commonly used activation function in neural networks.
+    It "kills" negative values while leaving positive ones unchanged.
 
     (See https://en.wikipedia.org/wiki/Rectifier_(neural_networks) .)
     """
@@ -87,42 +119,66 @@ def relu(x: float) -> float:
     # raise NotImplementedError('Need to implement for Task 0.1')
     return x if x > 0 else 0.0
 
+
 EPS = 1e-6
 
 
 def log(x: float) -> float:
-    "$f(x) = log(x)$"
+    r"""
+    Natural logarithm: $\ln(x)$.
+    Since log is undefined at x=0, we add EPS for safety.
+    """
     return math.log(x + EPS)
 
 
 def exp(x: float) -> float:
-    "$f(x) = e^{x}$"
+    """
+    Exponential function: $f(x) = e^{x}$
+    """
     return math.exp(x)
 
 
 def log_back(x: float, d: float) -> float:
-    r"If $f = log$ as above, compute $d \times f'(x)$"
+    r"""
+    Backpropagation derivative for the log function.
+
+    According to the Chain Rule: $dL/dx = dL/df * df/dx$.
+    Here $f = \ln(x)$ and $df/dx = 1/x$.
+    'd' is the gradient $dL/df$ coming from the upper layer.
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
-    return log(x + EPS)
+    return d / (x + EPS)
+
 
 def inv(x: float) -> float:
-    "$f(x) = 1/x$"
+    """
+    Inverse function: $f(x) = 1/x$
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return 1.0 / x
 
+
 def inv_back(x: float, d: float) -> float:
-    r"If $f(x) = 1/x$ compute $d \times f'(x)$"
-    # TODO: Implement for Task 0.1.K
+    """
+    Gradient of the inverse function: $d \times f'(x) = -d / x^2$.
+    The derivative of $1/x$ is $-1/x^2$, which we multiply by the upstream gradient 'd'.
+    """
+    # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return -d / (x * x)
 
+
 def relu_back(x: float, d: float) -> float:
-    r"If $f = relu$ compute $d \times f'(x)$"
+    """
+    ReLU gradient: $d$ if $x > 0$, else 0.
+    Passes the gradient as is for positive values and blocks it for negative ones.
+    """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
     return d if x > 0 else 0.0
+
 
 # ## Task 0.3
 
@@ -131,23 +187,27 @@ def relu_back(x: float, d: float) -> float:
 
 def map(fn: Callable[[float], float]) -> Callable[[Iterable[float]], Iterable[float]]:
     """
-    Higher-order map.
+    Higher-Order Function: Map
 
-    See https://en.wikipedia.org/wiki/Map_(higher-order_function)
+    Takes a 'function' (fn) and returns a new function.
+    The returned function applies 'fn' to each element in a given list.
+    This is an excellent example of the concept of abstraction in programming.
 
     Args:
-        fn: Function from one value to one value.
+        fn: A function that takes one value and returns one value.
 
     Returns:
-         A function that takes a list, applies `fn` to each element, and returns a
-         new list
+         A function that takes a list and returns a new list with fn applied to each element.
     """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
 
 def negList(ls: Iterable[float]) -> Iterable[float]:
-    "Use `map` and `neg` to negate each element in `ls`"
+    """
+    Negate all elements in a list using map and neg.
+    Ensures 'map' applies the 'neg' operation to every element in the list.
+    """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
@@ -156,24 +216,26 @@ def zipWith(
         fn: Callable[[float, float], float]
 ) -> Callable[[Iterable[float], Iterable[float]], Iterable[float]]:
     """
-    Higher-order zipwith (or map2).
+    Higher-Order Function: ZipWith (or Map2)
 
-    See https://en.wikipedia.org/wiki/Map_(higher-order_function)
+    Traverses two different lists in parallel and combines their elements using 'fn'.
+    For example, fn=add is used to sum two lists.
 
     Args:
-        fn: combine two values
+        fn: A function that combines two values.
 
     Returns:
-         Function that takes two equally sized lists `ls1` and `ls2`, produce a new list by
-         applying fn(x, y) on each pair of elements.
-
+         A function that takes two lists of the same size and produces a new list by applying fn(x, y).
     """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
 
 def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
-    "Add the elements of `ls1` and `ls2` using `zipWith` and `add`"
+    """
+    Add corresponding elements of two lists using zipWith and add.
+    Combines two lists like a zipper using the 'add' operation.
+    """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
@@ -182,28 +244,38 @@ def reduce(
         fn: Callable[[float, float], float], start: float
 ) -> Callable[[Iterable[float]], float]:
     r"""
-    Higher-order reduce.
+    Higher-Order Function: Reduce
+
+    Used to decrease ("reduce") a list to a single value.
+    For example, to find the sum: start=0, fn=add.
+    The order of operation is: $fn(x_3, fn(x_2, fn(x_1, start)))$
 
     Args:
-        fn: combine two values
-        start: start value $x_0$
+        fn: A function that combines two values.
+        start: Starting value $x_0$.
 
     Returns:
-         Function that takes a list `ls` of elements
-         $x_1 \ldots x_n$ and computes the reduction :math:`fn(x_3, fn(x_2,
-         fn(x_1, x_0)))`
+         A function that takes a list and returns a single reduced value.
     """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
 
 def sum(ls: Iterable[float]) -> float:
-    "Sum up a list using `reduce` and `add`."
+    """
+    Sum all elements in a list using reduce and add.
+    Uses 'reduce' and 'add' to find the total sum.
+    The starting value (start) should be 0.
+    """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
 
 
 def prod(ls: Iterable[float]) -> float:
-    "Product of a list using `reduce` and `mul`."
+    """
+    Calculate the product of all elements in a list using reduce and mul.
+    Uses 'reduce' and 'mul' to find the total product.
+    The starting value (start) should be 1.
+    """
     # TODO: Implement for Task 0.3.
     raise NotImplementedError('Need to implement for Task 0.3')
