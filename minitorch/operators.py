@@ -228,8 +228,8 @@ def zipWith(
          A function that takes two lists of the same size and produces a new list by applying fn(x, y).
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
-
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return lambda ls1, ls2: (fn(x, y) for x, y in zip(ls1, ls2))
 
 def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
     """
@@ -237,7 +237,8 @@ def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
     Combines two lists like a zipper using the 'add' operation.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return zipWith(add)(ls1, ls2)
 
 
 def reduce(
@@ -258,8 +259,13 @@ def reduce(
          A function that takes a list and returns a single reduced value.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
-
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    def reducer(ls: Iterable[float]) -> float:
+        result = start
+        for x in ls:
+            result = fn(x, result)
+        return result
+    return reducer
 
 def sum(ls: Iterable[float]) -> float:
     """
@@ -268,8 +274,8 @@ def sum(ls: Iterable[float]) -> float:
     The starting value (start) should be 0.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
-
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return reduce(add, 0)(ls)
 
 def prod(ls: Iterable[float]) -> float:
     """
@@ -278,4 +284,5 @@ def prod(ls: Iterable[float]) -> float:
     The starting value (start) should be 1.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return reduce(mul, 1)(ls)
