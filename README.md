@@ -1,5 +1,9 @@
+[![Python package](https://github.com/enveryildirim/minitorch-custom/actions/workflows/minitorch.yml/badge.svg)](https://github.com/enveryildirim/minitorch-custom/actions/workflows/minitorch.yml)
+
+
 # Custom minitorch 
 fork of [minitorch](https://github.com/minitorch/minitorch) repo for self educations
+
 
 ## Installation
 
