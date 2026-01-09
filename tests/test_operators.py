@@ -24,8 +24,8 @@ from minitorch.operators import (
     sigmoid,
     sum,
 )
-
 from .strategies import assert_close, small_floats
+
 
 # ## Task 0.1 Basic hypothesis tests.
 
@@ -108,7 +108,21 @@ def test_sigmoid(a: float) -> None:
     * It is  strictly increasing.
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError('Need to implement for Task 0.2')
+    # Sigmoid çıktısının aralığını kontrol et: her zaman 0.0 ile 1.0 arasında olmalıdır
+    sig_a = sigmoid(a)
+    assert 0.0 <= sig_a <= 1.0  # olasılık benzeri çıktı aralığı
+
+    # Lojistik kimlik: 1 - sigmoid(a) == sigmoid(-a) olmalı
+    assert_close(1.0 - sigmoid(a), sigmoid(-a))  # simetri ve numerik kararlılık kontrolü
+
+    # Sigmoid'in 0 noktasından geçtiğini doğrula: sigmoid(0) == 0.5
+    assert_close(sigmoid(0.0), 0.5)  # merkezleme kontrolü
+
+    # Monotonicity: sigmoid is strictly increasing (test only when not saturated)
+    # Skip the monotonicity test when sigmoid is saturated (near 0 or 1)
+    if 0.01 < sig_a < 0.99:
+        delta = 1e-5
+        assert sigmoid(a + delta) > sigmoid(a)
 
 
 @pytest.mark.task0_2
@@ -116,7 +130,9 @@ def test_sigmoid(a: float) -> None:
 def test_transitive(a: float, b: float, c: float) -> None:
     "Test the transitive property of less-than (a < b and b < c implies a < c)"
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError('Need to implement for Task 0.2')
+    # raise NotImplementedError('Need to implement for Task 0.2')
+    if lt(a, b) == 1.0 and lt(b, c) == 1.0:
+        assert lt(a, c) == 1.0
 
 
 @pytest.mark.task0_2
@@ -126,8 +142,10 @@ def test_symmetric() -> None:
     gives the same value regardless of the order of its input.
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError('Need to implement for Task 0.2')
-
+    # raise NotImplementedError('Need to implement for Task 0.2')
+    for x in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+        for y in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+            assert_close(mul(x, y), mul(y, x))
 
 @pytest.mark.task0_2
 def test_distribute() -> None:
@@ -136,8 +154,13 @@ def test_distribute() -> None:
     :math:`z \times (x + y) = z \times x + z \times y`
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError('Need to implement for Task 0.2')
-
+    # raise NotImplementedError('Need to implement for Task 0.2')
+    for x in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+        for y in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+            for z in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+                left = mul(z, add(x, y))
+                right = add(mul(z, x), mul(z, y))
+                assert_close(left, right)
 
 @pytest.mark.task0_2
 def test_other() -> None:
@@ -145,8 +168,14 @@ def test_other() -> None:
     Write a test that ensures some other property holds for your functions.
     """
     # TODO: Implement for Task 0.2.
-    raise NotImplementedError('Need to implement for Task 0.2')
+    # raise NotImplementedError('Need to implement for Task 0.2')
 
+    for z in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+        for x in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+            for y in [-10.0, -1.0, 0.0, 1.0, 10.0]:
+                left = mul(z, add(x, y))
+                right = add(mul(z, x), mul(z, y))
+                assert_close(left, right)
 
 # ## Task 0.3  - Higher-order functions
 
@@ -215,7 +244,7 @@ def test_one_args(fn: Tuple[str, Callable[[float], float]], t1: float) -> None:
 @given(small_floats, small_floats)
 @pytest.mark.parametrize("fn", two_arg)
 def test_two_args(
-    fn: Tuple[str, Callable[[float, float], float]], t1: float, t2: float
+        fn: Tuple[str, Callable[[float, float], float]], t1: float, t2: float
 ) -> None:
     name, base_fn = fn
     base_fn(t1, t2)
