@@ -31,13 +31,27 @@ class Module:
 
     def train(self) -> None:
         "Set the mode of this module and all descendent modules to `train`."
+
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError('Need to implement for Task 0.4')
+        # raise NotImplementedError('Need to implement for Task 0.4')
+        def _train(module: Module) -> None:
+            module.training = True
+            for m in module.modules():
+                _train(m)
+
+        _train(self)
 
     def eval(self) -> None:
         "Set the mode of this module and all descendent modules to `eval`."
+
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError('Need to implement for Task 0.4')
+        # raise NotImplementedError('Need to implement for Task 0.4')
+        def _eval(module: Module) -> None:
+            module.training = False
+            for m in module.modules():
+                _eval(m)
+
+        _eval(self)
 
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """
@@ -47,13 +61,24 @@ class Module:
         Returns:
             The name and `Parameter` of each ancestor parameter.
         """
+
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError('Need to implement for Task 0.4')
+        # raise NotImplementedError('Need to implement for Task 0.4')
+        def _named_parameters(module: Module, prefix: str = "") -> Sequence[Tuple[str, Parameter]]:
+            params: Sequence[Tuple[str, Parameter]] = []
+            for name, param in module._parameters.items():
+                params.append((prefix + name, param))
+            for name, mod in module._modules.items():
+                params.extend(_named_parameters(mod, prefix + name + "."))
+            return params
+
+        return _named_parameters(self)
 
     def parameters(self) -> Sequence[Parameter]:
         "Enumerate over all the parameters of this module and its descendents."
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError('Need to implement for Task 0.4')
+        # raise NotImplementedError('Need to implement for Task 0.4')
+        return [param for _, param in self.named_parameters()]
 
     def add_parameter(self, k: str, v: Any) -> Parameter:
         """
