@@ -200,7 +200,8 @@ def map(fn: Callable[[float], float]) -> Callable[[Iterable[float]], Iterable[fl
          A function that takes a list and returns a new list with fn applied to each element.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return lambda ls: (fn(x) for x in ls)
 
 
 def negList(ls: Iterable[float]) -> Iterable[float]:
@@ -209,8 +210,8 @@ def negList(ls: Iterable[float]) -> Iterable[float]:
     Ensures 'map' applies the 'neg' operation to every element in the list.
     """
     # TODO: Implement for Task 0.3.
-    raise NotImplementedError('Need to implement for Task 0.3')
-
+    # raise NotImplementedError('Need to implement for Task 0.3')
+    return map(neg)(ls)
 
 def zipWith(
         fn: Callable[[float, float], float]
