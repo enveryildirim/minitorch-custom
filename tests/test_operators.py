@@ -147,6 +147,7 @@ def test_symmetric() -> None:
         for y in [-10.0, -1.0, 0.0, 1.0, 10.0]:
             assert_close(mul(x, y), mul(y, x))
 
+
 @pytest.mark.task0_2
 def test_distribute() -> None:
     r"""
@@ -162,6 +163,7 @@ def test_distribute() -> None:
                 right = add(mul(z, x), mul(z, y))
                 assert_close(left, right)
 
+
 @pytest.mark.task0_2
 def test_other() -> None:
     """
@@ -176,6 +178,7 @@ def test_other() -> None:
                 left = mul(z, add(x, y))
                 right = add(mul(z, x), mul(z, y))
                 assert_close(left, right)
+
 
 # ## Task 0.3  - Higher-order functions
 
@@ -207,6 +210,7 @@ def test_sum_distribute(ls1: List[float], ls2: List[float]) -> None:
     assert_close(
         sum(ls1) + sum(ls2), sum([x + y for x, y in zip(ls1, ls2)])
     )
+
 
 @pytest.mark.task0_3
 @given(lists(small_floats))

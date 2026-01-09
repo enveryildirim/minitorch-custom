@@ -231,6 +231,7 @@ def zipWith(
     # raise NotImplementedError('Need to implement for Task 0.3')
     return lambda ls1, ls2: (fn(x, y) for x, y in zip(ls1, ls2))
 
+
 def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
     """
     Add corresponding elements of two lists using zipWith and add.
@@ -258,6 +259,7 @@ def reduce(
     Returns:
          A function that takes a list and returns a single reduced value.
     """
+
     # TODO: Implement for Task 0.3.
     # raise NotImplementedError('Need to implement for Task 0.3')
     def reducer(ls: Iterable[float]) -> float:
@@ -265,7 +267,9 @@ def reduce(
         for x in ls:
             result = fn(x, result)
         return result
+
     return reducer
+
 
 def sum(ls: Iterable[float]) -> float:
     """
@@ -276,6 +280,7 @@ def sum(ls: Iterable[float]) -> float:
     # TODO: Implement for Task 0.3.
     # raise NotImplementedError('Need to implement for Task 0.3')
     return reduce(add, 0)(ls)
+
 
 def prod(ls: Iterable[float]) -> float:
     """
