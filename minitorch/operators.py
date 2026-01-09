@@ -213,6 +213,7 @@ def negList(ls: Iterable[float]) -> Iterable[float]:
     # raise NotImplementedError('Need to implement for Task 0.3')
     return map(neg)(ls)
 
+
 def zipWith(
         fn: Callable[[float, float], float]
 ) -> Callable[[Iterable[float], Iterable[float]], Iterable[float]]:
