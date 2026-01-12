@@ -25,26 +25,26 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     # TODO: Implement for Task 1.1.
     # raise NotImplementedError('Need to implement for Task 1.1')
     vals_list: List[float] = list(vals)
-    
+
     # İlgilendiğimiz değişkenin orijinal değerini saklayalım (güvenlik için)
     original_val = vals_list[arg]
-    
+
     # 1. Adım: f(x + epsilon) hesapla
     vals_list[arg] = original_val + epsilon
     # * operatörü ile listeyi argümanlara açarak fonksiyonu çağırıyoruz
     f_plus = f(*vals_list)
-    
+
     # 2. Adım: f(x - epsilon) hesapla
     vals_list[arg] = original_val - epsilon
     f_minus = f(*vals_list)
-    
+
     # Listeyi orijinal haline döndürelim (iyi bir mühendislik pratiği, yan etki bırakmamak için)
     vals_list[arg] = original_val
-    
+
     # 3. Adım: Merkezi fark formülü
     # Türev = (f(x+h) - f(x-h)) / 2h
     derivative = (f_plus - f_minus) / (2 * epsilon)
-    
+
     return derivative
 
 
@@ -84,7 +84,7 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         Non-constant Variables in topological order starting from the right.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    raise NotImplementedError("Need to implement for Task 1.4")
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -99,7 +99,7 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    raise NotImplementedError("Need to implement for Task 1.4")
 
 
 @dataclass

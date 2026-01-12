@@ -108,7 +108,6 @@ class Mul(ScalarFunction):
         ctx.save_for_backward(a, b)
         return a * b
 
-
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
         # TODO: Implement for Task 1.4.
