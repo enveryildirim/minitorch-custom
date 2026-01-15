@@ -110,8 +110,15 @@ class Mul(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Çarpma işleminin türevi için zincir kuralını uygular.
+        f(a, b) = a * b
+        d_out/da = b
+        d_out/db = a
+        """
+        a, b = ctx.saved_values
+        return d_output * b, d_output * a
 
 
 class Inv(ScalarFunction):
@@ -126,8 +133,12 @@ class Inv(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> float:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Ters alma işleminin türevi: f(x) = 1/x -> f'(x) = -1/x^2
+        """
+        (a,) = ctx.saved_values
+        return operators.inv_back(a, d_output)
 
 
 class Neg(ScalarFunction):
@@ -141,8 +152,12 @@ class Neg(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> float:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Negatif alma işleminin türevi sabittir (-1).
+        f(x) = -x -> f'(x) = -1
+        """
+        return -d_output
 
 
 class Sigmoid(ScalarFunction):
@@ -158,8 +173,13 @@ class Sigmoid(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> float:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Sigmoid fonksiyonunun türevi: f'(x) = f(x) * (1 - f(x))
+        Burada kayıtlı değer zaten f(x)'tir.
+        """
+        sigma = ctx.saved_values[0]
+        return d_output * sigma * (1.0 - sigma)
 
 
 class ReLU(ScalarFunction):
@@ -174,8 +194,12 @@ class ReLU(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> float:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        ReLU fonksiyonunun türevi: Eğer x > 0 ise 1, değilse 0.
+        """
+        (a,) = ctx.saved_values
+        return operators.relu_back(a, d_output)
 
 
 class Exp(ScalarFunction):
@@ -191,8 +215,13 @@ class Exp(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> float:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Üstel fonksiyonun türevi kendisidir: f(x) = e^x -> f'(x) = e^x
+        Kayıtlı değer zaten e^x sonucudur.
+        """
+        out = ctx.saved_values[0]
+        return d_output * out
 
 
 class LT(ScalarFunction):
@@ -206,8 +235,11 @@ class LT(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Küçüktür (<) işlemi bir karşılaştırma olduğundan türevi her yerde 0'dır (veya tanımsızdır).
+        """
+        return 0.0, 0.0
 
 
 class EQ(ScalarFunction):
@@ -221,5 +253,8 @@ class EQ(ScalarFunction):
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
-        # TODO: Implement for Task 1.4.
-        raise NotImplementedError('Need to implement for Task 1.4')
+        """
+        Geriye yayılım (Backpropagation) işlemi:
+        Eşittir (==) işlemi bir karşılaştırma olduğundan türevi her yerde 0'dır.
+        """
+        return 0.0, 0.0

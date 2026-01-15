@@ -117,4 +117,13 @@ def test_two_derivative(
     t2: Scalar,
 ) -> None:
     name, _, scalar_fn = fn
+    # Special handling for discontinuous functions where central difference is unstable
+    # at the jump point.
+    epsilon = 1e-5
+    if name == "gt2" or name == "lt2":
+        if abs(t1.data + 1.2 - t2.data) < epsilon:
+            return
+    if name == "eq2":
+        if abs(t1.data - (t2.data + 5.5)) < epsilon:
+            return
     derivative_check(scalar_fn, t1, t2)

@@ -72,7 +72,6 @@ class Variable(Protocol):
     def chain_rule(self, d_output: Any) -> Iterable[Tuple["Variable", Any]]:
         pass
 
-
 def topological_sort(variable: Variable) -> Iterable[Variable]:
     """
     Computes the topological order of the computation graph.
@@ -84,7 +83,21 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         Non-constant Variables in topological order starting from the right.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    # raise NotImplementedError("Need to implement for Task 1.4")
+
+    order = []
+    visited = set()
+
+    def visit(v: Variable) -> None:
+        if v.unique_id in visited or v.is_constant():
+            return
+        visited.add(v.unique_id)
+        for parent in v.parents:
+            visit(parent)
+        order.append(v)
+
+    visit(variable)
+    return reversed(order)
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -99,7 +112,45 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    # raise NotImplementedError("Need to implement for Task 1.4")
+
+    # Adım 0: Türevleri saklamak için bir sözlük (dictionary) oluştur.
+    # Bu sözlük, her bir değişkenin (Variable) unique_id'si ile o anki hesaplanmış türevini eşleştirecek.
+    derivatives = {}
+
+    # Başlangıç noktası: En tepedeki (right-most) değişkenin türevi bize veriliyor.
+    # Bunu sözlüğe ekleyerek başlıyoruz.
+    derivatives[variable.unique_id] = deriv
+
+    # Adım 1: Hesaplama grafiğindeki düğümleri topolojik sıraya diz.
+    # Bu fonksiyon bize değişkenleri, sonuçtan sebebe (output -> input) doğru giden bir sırada verir.
+    # Bu sıra önemlidir çünkü bir düğümün türevini hesaplamadan önce, onu kullanan tüm düğümlerin
+    # türevlerinin hesaplanmış ve toplanmış olması gerekir.
+    order = topological_sort(variable)
+
+    # Adım 2: Sıralanmış değişkenler üzerinde döngü başlat.
+    for var in order:
+        # Şu anki değişken için birikmiş türevi al.
+        d_output = derivatives.get(var.unique_id)
+
+        # Eğer bu değişken bir "yaprak" (leaf) ise:
+        # Bu, işlemin en başındaki girdilerden biri olduğu anlamına gelir (örn. kullanıcı tarafından oluşturulan w veya x).
+        # Bu durumda, hesapladığımız türevi bu değişkene "biriktirmemiz" (accumulate) gerekir.
+        if var.is_leaf():
+            var.accumulate_derivative(d_output)
+        
+        # Eğer yaprak değilse (yani bir ara işlem sonucuysa):
+        # Zincir kuralını (chain rule) uygulayarak türevi bu değişkenin ebeveynlerine (parents) dağıtmalıyız.
+        else:
+            # chain_rule fonksiyonu, bu değişkenin türevini (d_output) alır ve
+            # bunu oluşturan girdilere (parents) ne kadar türev gitmesi gerektiğini hesaplar.
+            # Bize (parent_variable, derivative_part) çiftleri döndürür.
+            for parent, d_parent in var.chain_rule(d_output):
+                # Ebeveynin türevini sözlüğümüze ekle veya varsa üzerine topla.
+                if parent.unique_id in derivatives:
+                    derivatives[parent.unique_id] += d_parent
+                else:
+                    derivatives[parent.unique_id] = d_parent
 
 
 @dataclass
