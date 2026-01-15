@@ -72,6 +72,7 @@ class Variable(Protocol):
     def chain_rule(self, d_output: Any) -> Iterable[Tuple["Variable", Any]]:
         pass
 
+
 def topological_sort(variable: Variable) -> Iterable[Variable]:
     """
     Computes the topological order of the computation graph.
@@ -138,7 +139,7 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
         # Bu durumda, hesapladığımız türevi bu değişkene "biriktirmemiz" (accumulate) gerekir.
         if var.is_leaf():
             var.accumulate_derivative(d_output)
-        
+
         # Eğer yaprak değilse (yani bir ara işlem sonucuysa):
         # Zincir kuralını (chain rule) uygulayarak türevi bu değişkenin ebeveynlerine (parents) dağıtmalıyız.
         else:
