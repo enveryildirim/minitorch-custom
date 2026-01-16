@@ -20,7 +20,8 @@ if TYPE_CHECKING:
 
 
 class MapProto(Protocol):
-    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor: ...
+    def __call__(self, x: Tensor, out: Optional[Tensor] = ..., /) -> Tensor:
+        ...
 
 
 class TensorOps:
