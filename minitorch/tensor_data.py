@@ -49,7 +49,7 @@ def index_to_position(index: Index, strides: Strides) -> int:
     # Bellekteki ardışık (flat) pozisyonu tutacak değişken
     position = 0
     # Her bir boyutun indeksi ile o boyuta ait adımı (stride) çarparak topluyoruz
-    for i in range(len(index)):
+    for i in range(len(strides)):
         position += index[i] * strides[i]
     return position
 
@@ -96,8 +96,12 @@ def broadcast_index(
     Returns:
         None
     """
-    # TODO: Implement for Task 2.2.
-    raise NotImplementedError("Need to implement for Task 2.2")
+    offset = len(big_shape) - len(shape)
+    for i in range(len(shape)):
+        if shape[i] > 1:
+            out_index[i] = big_index[i + offset]
+        else:
+            out_index[i] = 0
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
