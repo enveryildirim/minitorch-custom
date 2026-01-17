@@ -347,8 +347,48 @@ def _tensor_matrix_multiply(
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
-    # TODO: Implement for Task 3.2.
-    raise NotImplementedError("Need to implement for Task 3.2")
+    # Batch dimension (out_shape[0])
+    # The outer loop iterates over the batch dimension 'batch'.
+    # We use prange for parallel execution.
+    # Note: 'out_shape' is (Batch, I, J).
+    # 'a_shape' is (Batch, I, K)
+    # 'b_shape' is (Batch, K, J)
+
+    # We assume 'out_shape' has 3 dimensions as ensured by the caller wrapper.
+    batch_size = out_shape[0]
+    m = out_shape[1]
+    p = out_shape[2]
+    # k dimension comes from a or b inner
+    k = a_shape[2]
+
+    # Iterate over batches in parallel
+    for i in prange(batch_size):
+        # Calculate base offsets for each batch
+        # If batch_stride is 0, it means we broadcast this dimension (reuse same data).
+        a_batch_offset = i * a_batch_stride
+        b_batch_offset = i * b_batch_stride
+        out_batch_offset = i * out_strides[0]
+
+        # Iterate over M (rows of Output/A)
+        for j in range(m):
+            a_row_offset = a_batch_offset + j * a_strides[1]
+            out_row_offset = out_batch_offset + j * out_strides[1]
+
+            # Iterate over P (cols of Output/B)
+            for l in range(p):
+                b_col_offset = b_batch_offset + l * b_strides[2]
+                out_pos = out_row_offset + l * out_strides[2]
+
+                # Inner loop: Dot product over K
+                acc = 0.0
+                for n in range(k):
+                    # a[batch, j, n]
+                    a_val = a_storage[a_row_offset + n * a_strides[2]]
+                    # b[batch, n, l]
+                    b_val = b_storage[b_col_offset + n * b_strides[1]]
+                    acc += a_val * b_val
+
+                out[out_pos] = acc
 
 
 tensor_matrix_multiply = njit(parallel=True, fastmath=True)(_tensor_matrix_multiply)
