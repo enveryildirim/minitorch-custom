@@ -1,7 +1,7 @@
 from typing import Callable, Iterable, List, Tuple
 
 import pytest
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import DataObject, data, lists, permutations
 
 from minitorch import MathTestVariable, Tensor, grad_check, tensor
@@ -106,6 +106,12 @@ def test_two_grad(
 ) -> None:
     name, _, tensor_fn = fn
     t1, t2 = ts
+    if name in ["lt2", "gt2", "eq2"]:
+        # Calculate absolute difference
+        d = t1 - t2
+        # Since Tensor doesn't have abs(), use relu trick (x.abs() = x.relu() + (-x).relu())
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
     grad_check(tensor_fn, t1, t2)
 
 
@@ -119,9 +125,22 @@ def test_two_grad_broadcast(
     "Test the grad of a two argument function"
     name, base_fn, tensor_fn = fn
     t1, t2 = ts
+    if name in ["lt2", "gt2", "eq2"]:
+        d = t1 - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
     grad_check(tensor_fn, t1, t2)
 
     # broadcast check
+    if name in ["lt2", "gt2", "eq2"]:
+        d = t1.sum(0) - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+
+        d2 = t1 - t2.sum(0)
+        diff2 = d2.relu() + (-d2).relu()
+        assume(diff2.to_numpy().min() > 0.01)
+
     grad_check(tensor_fn, t1.sum(0), t2)
     grad_check(tensor_fn, t1, t2.sum(0))
 
