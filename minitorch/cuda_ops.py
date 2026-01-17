@@ -366,7 +366,48 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
     """
     BLOCK_DIM = 32
     # TODO: Implement for Task 3.3.
-    raise NotImplementedError("Need to implement for Task 3.3")
+    # raise NotImplementedError("Need to implement for Task 3.3")
+
+    # Define shared memory
+    a_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
+    b_shared = cuda.shared.array((BLOCK_DIM, BLOCK_DIM), numba.float64)
+
+    # Thread indices
+    tx = cuda.threadIdx.x  # Row within block
+    ty = cuda.threadIdx.y  # Col within block
+
+    # In mm_practice, inputs are (size, size).
+    # Global threads are enough to cover (size, size) since size < 32 and block is 32x32.
+    # Note: caller uses 2D grid. x matches dim 0, y matches dim 1 in minitorch convention seems inconsistent?
+    # Let's check mm_practice caller:
+    # threadsperblock = (THREADS_PER_BLOCK, THREADS_PER_BLOCK)
+    # jit_mm_practice[blockspergrid, threadsperblock](..., size)
+    # Generally threadIdx.x is inner, threadIdx.y is outer.
+    # Let's map x->j (col), y->i (row) to match standard math convention if possible,
+    # OR follow the skeleton loop structure in _tensor_matrix_multiply:
+    # i = blockIdx.x * ... + threadIdx.x
+    # j = blockIdx.y * ... + threadIdx.y
+    # This implies x -> rows, y -> cols.
+
+    # Let's assume x=row, y=col based on _tensor_matrix_multiply skeleton.
+    row = cuda.threadIdx.x
+    col = cuda.threadIdx.y
+
+    if row < size and col < size:
+        # Load into shared memory
+        # Storage is flat, strides are (size, 1)
+        # Pos = row * size + col
+        a_shared[row, col] = a[row * size + col]
+        b_shared[row, col] = b[row * size + col]
+
+    cuda.syncthreads()
+
+    if row < size and col < size:
+        acc = 0.0
+        for k in range(size):
+            acc += a_shared[row, k] * b_shared[k, col]
+
+        out[row * size + col] = acc
 
 
 jit_mm_practice = cuda.jit()(_mm_practice)
@@ -435,8 +476,73 @@ def _tensor_matrix_multiply(
     #    a) Copy into shared memory for a matrix.
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
-    # TODO: Implement for Task 3.4.
-    raise NotImplementedError("Need to implement for Task 3.4")
+    # TODO: Implement for Task 3.3.
+    # raise NotImplementedError("Need to implement for Task 3.3")
+
+    # Loop over K dimension in chunks of BLOCK_DIM
+    # K is a_shape[2] (or b_shape[1])
+    # a shape: (Batch, M, K). Strides: (a_batch_stride, a_strides[1], a_strides[2])
+    # b shape: (Batch, K, N). Strides: (b_batch_stride, b_strides[1], b_strides[2])
+
+    acc = 0.0
+    k_dim = a_shape[2]
+
+    # Iterate over K in chunks
+    for k_start in range(0, k_dim, BLOCK_DIM):
+        # Load A tile
+        # We need a[batch, i, k_start + pj]
+        # But wait, shared memory is (BLOCK_DIM, BLOCK_DIM).
+        # We want to load a sub-block of A and B.
+        # Threads are (pi, pj) where pi=local_row, pj=local_col.
+
+        # A tile: Rows i (global), Cols k_start...(k_start+BLOCK_DIM)
+        # Each thread loads ONE element of A-tile?
+        # A tile size is 32x32. Block size is 32x32.
+        # Yes, each thread loads one element.
+        # Position in A tile: (pi, pj) -> corresponds to (i, k_start + pj) ???
+        # NO. We need to be careful with access/bank conflicts, but simple mapping is:
+        # Load element A[batch, i, k_start + pj] into a_shared[pi, pj]
+
+        k_curr = k_start + pj
+        if i < a_shape[1] and k_curr < k_dim:
+            # Calculate linear path
+            # base = batch * a_batch_stride
+            # row = i * a_strides[1]
+            # col = k_curr * a_strides[2]
+            idx = batch * a_batch_stride + i * a_strides[1] + k_curr * a_strides[2]
+            a_shared[pi, pj] = a_storage[idx]
+        else:
+            a_shared[pi, pj] = 0.0
+
+        # Load B tile
+        # B tile: Rows k_start...(k_start+BLOCK_DIM), Cols j (global)
+        # We want B[batch, k_start + pi, j] loaded into b_shared[pi, pj]
+
+        k_curr_b = k_start + pi
+        if k_curr_b < k_dim and j < b_shape[2]:
+            idx = batch * b_batch_stride + k_curr_b * b_strides[1] + j * b_strides[2]
+            b_shared[pi, pj] = b_storage[idx]
+        else:
+            b_shared[pi, pj] = 0.0
+
+        cuda.syncthreads()
+
+        # Compute partial dot product from shared memory
+        # C[i, j] += sum(A[i, k] * B[k, j])
+        # In shared: sum(a_shared[pi, k] * b_shared[k, pj]) for k in 0..BLOCK_DIM
+        # Note bounds: we padded with 0 so we can blindly sum up to BLOCK_DIM (or remaining size)
+
+        for k in range(BLOCK_DIM):
+            if (
+                k_start + k < k_dim
+            ):  # Optimization: technically 0-padding handles this, but logic check
+                acc += a_shared[pi, k] * b_shared[k, pj]
+
+        cuda.syncthreads()
+
+    if i < out_shape[1] and j < out_shape[2]:
+        out_idx = batch * out_strides[0] + i * out_strides[1] + j * out_strides[2]
+        out[out_idx] = acc
 
 
 tensor_matrix_multiply = cuda.jit(_tensor_matrix_multiply)
