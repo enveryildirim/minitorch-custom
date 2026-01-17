@@ -104,7 +104,7 @@ def sigmoid(x: float) -> float:
     """
     # TODO: Implement for Task 0.1.
     # raise NotImplementedError('Need to implement for Task 0.1')
-    return 1.0 / (1.0 + exp(-x)) if x >= 0 else exp(x) / (1.0 + exp(x))
+    return 1.0 / (1.0 + math.exp(-x)) if x >= 0 else math.exp(x) / (1.0 + math.exp(x))
 
 
 def relu(x: float) -> float:
@@ -215,7 +215,7 @@ def negList(ls: Iterable[float]) -> Iterable[float]:
 
 
 def zipWith(
-        fn: Callable[[float, float], float]
+    fn: Callable[[float, float], float],
 ) -> Callable[[Iterable[float], Iterable[float]], Iterable[float]]:
     """
     Higher-Order Function: ZipWith (or Map2)
@@ -245,7 +245,7 @@ def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
 
 
 def reduce(
-        fn: Callable[[float, float], float], start: float
+    fn: Callable[[float, float], float], start: float
 ) -> Callable[[Iterable[float]], float]:
     r"""
     Higher-Order Function: Reduce

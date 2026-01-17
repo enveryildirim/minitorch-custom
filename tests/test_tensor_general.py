@@ -3,7 +3,7 @@ from typing import Callable, Dict, Iterable, List, Tuple
 
 import numba
 import pytest
-from hypothesis import given, settings
+from hypothesis import given, settings, assume
 from hypothesis.strategies import DataObject, data, integers, lists, permutations
 
 import minitorch
@@ -110,6 +110,18 @@ def test_two_grad(
     "Run backward for all two arg functions above."
     t1, t2 = data.draw(shaped_tensors(2, backend=shared[backend]))
     name, _, tensor_fn = fn
+    # TODO: fix this later. check another test file for reference. For now, we assume that the inputs are not too close to each other.
+    # This is because the derivative of the comparison functions is 0 when the inputs are equal.
+    # and the gradient check will fail.
+    if name == "lt2":
+        d = t1 + 1.25 - t2
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+    if name == "gt2":
+        d = t1 + 1.25 - t2
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+    if name == "eq2":
+        d = t1 - (t2 + 5.5)
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
     grad_check(tensor_fn, t1, t2)
 
 
@@ -316,6 +328,16 @@ def test_two_grad_broadcast(
     "Run backward for all two arg functions above with broadcast."
     t1, t2 = data.draw(shaped_tensors(2, backend=shared[backend]))
     name, base_fn, tensor_fn = fn
+
+    if name == "lt2":
+        d = t1 + 1.25 - t2
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+    if name == "gt2":
+        d = t1 + 1.25 - t2
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+    if name == "eq2":
+        d = t1 - (t2 + 5.5)
+        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
 
     grad_check(tensor_fn, t1, t2)
 

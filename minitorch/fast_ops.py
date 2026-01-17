@@ -133,7 +133,7 @@ class FastOps(TensorOps):
 
 
 def tensor_map(
-    fn: Callable[[float], float]
+    fn: Callable[[float], float],
 ) -> Callable[[Storage, Shape, Strides, Storage, Shape, Strides], None]:
     """
     NUMBA low_level tensor_map function. See `tensor_ops.py` for description.
@@ -160,13 +160,32 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        if len(out_strides) != len(in_strides) or (
+            out_strides.shape[0] != in_strides.shape[0]
+        ):
+            # Shapes/Strides mismatch, full calculation
+            pass
+
+        i = 0
+        size = 1
+        for s in out_shape:
+            size *= s
+
+        for i in prange(size):
+            gid = i + 0
+            out_index = np.empty(MAX_DIMS, np.int32)
+            in_index = np.empty(MAX_DIMS, np.int32)
+            to_index(gid, out_shape, out_index)
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+            out_pos = index_to_position(out_index, out_strides)
+            in_pos = index_to_position(in_index, in_strides)
+            out[out_pos] = fn(in_storage[in_pos])
 
     return njit(parallel=True)(_map)  # type: ignore
 
 
 def tensor_zip(
-    fn: Callable[[float, float], float]
+    fn: Callable[[float, float], float],
 ) -> Callable[
     [Storage, Shape, Strides, Storage, Shape, Strides, Storage, Shape, Strides], None
 ]:
@@ -199,13 +218,32 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        i = 0
+        size = 1
+        for s in out_shape:
+            size *= s
+
+        for i in prange(size):
+            gid = i + 0
+            out_index = np.empty(MAX_DIMS, np.int32)
+            a_index = np.empty(MAX_DIMS, np.int32)
+            b_index = np.empty(MAX_DIMS, np.int32)
+            to_index(gid, out_shape, out_index)
+
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+
+            out_pos = index_to_position(out_index, out_strides)
+            a_pos = index_to_position(a_index, a_strides)
+            b_pos = index_to_position(b_index, b_strides)
+
+            out[out_pos] = fn(a_storage[a_pos], b_storage[b_pos])
 
     return njit(parallel=True)(_zip)  # type: ignore
 
 
 def tensor_reduce(
-    fn: Callable[[float, float], float]
+    fn: Callable[[float, float], float],
 ) -> Callable[[Storage, Shape, Strides, Storage, Shape, Strides, int], None]:
     """
     NUMBA higher-order tensor reduce function. See `tensor_ops.py` for description.
@@ -233,7 +271,34 @@ def tensor_reduce(
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        raise NotImplementedError('Need to implement for Task 3.1')
+        i = 0
+        size = 1
+        for s in out_shape:
+            size *= s
+
+        for i in prange(size):
+            gid = i + 0
+            out_index = np.empty(MAX_DIMS, np.int32)
+            to_index(gid, out_shape, out_index)
+
+            out_pos = index_to_position(out_index, out_strides)
+
+            reduce_size = a_shape[reduce_dim]
+
+            val = out[out_pos]
+
+            # Use a local array for a_index to avoid modifying out_index potentially if we needed it again,
+            # but here out_index is local to loop iteration anyway.
+            # However, out_index is reused? No, 'to_index' fills it.
+            # We can just copy it.
+            a_index = out_index.copy()
+
+            for j in range(reduce_size):
+                a_index[reduce_dim] = j
+                a_pos = index_to_position(a_index, a_strides)
+                val = fn(val, a_storage[a_pos])
+
+            out[out_pos] = val
 
     return njit(parallel=True)(_reduce)  # type: ignore
 
@@ -283,7 +348,7 @@ def _tensor_matrix_multiply(
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
     # TODO: Implement for Task 3.2.
-    raise NotImplementedError('Need to implement for Task 3.2')
+    raise NotImplementedError("Need to implement for Task 3.2")
 
 
 tensor_matrix_multiply = njit(parallel=True, fastmath=True)(_tensor_matrix_multiply)
