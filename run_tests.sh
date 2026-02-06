@@ -30,4 +30,4 @@ echo "Module 4"
 pytest tests -x -m task4_1
 pytest tests -x -m task4_2
 pytest tests -x -m task4_3
-# pytest tests -x -m task4_4
+pytest tests -x -m task4_4
