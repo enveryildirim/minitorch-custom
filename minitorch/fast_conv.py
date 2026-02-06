@@ -206,7 +206,7 @@ def _tensor_conv2d(
         weight_strides (Strides): strides for `input` tensor.
         reverse (bool): anchor weight at top-left or bottom-right
     """
-    batch_, out_channels, _, _ = out_shape
+    batch_, out_channels, out_height, out_width = out_shape
     batch, in_channels, height, width = input_shape
     out_channels_, in_channels_, kh, kw = weight_shape
 
@@ -222,8 +222,37 @@ def _tensor_conv2d(
     s10, s11, s12, s13 = s1[0], s1[1], s1[2], s1[3]
     s20, s21, s22, s23 = s2[0], s2[1], s2[2], s2[3]
 
-    # TODO: Implement for Task 4.2.
-    raise NotImplementedError("Need to implement for Task 4.2")
+    for i in prange(batch):
+        for j in range(out_channels):
+            for h in range(out_height):
+                for w in range(out_width):
+                    acc = 0.0
+                    for q in range(in_channels):
+                        for kh_idx in range(kh):
+                            for kw_idx in range(kw):
+                                if reverse:
+                                    h_in = h - kh_idx
+                                    w_in = w - kw_idx
+                                else:
+                                    h_in = h + kh_idx
+                                    w_in = w + kw_idx
+
+                                if 0 <= h_in < height and 0 <= w_in < width:
+                                    input_pos = (
+                                        i * s10 + q * s11 + h_in * s12 + w_in * s13
+                                    )
+                                    weight_pos = (
+                                        j * s20 + q * s21 + kh_idx * s22 + kw_idx * s23
+                                    )
+                                    acc += input[input_pos] * weight[weight_pos]
+
+                    out_pos = (
+                        i * out_strides[0]
+                        + j * out_strides[1]
+                        + h * out_strides[2]
+                        + w * out_strides[3]
+                    )
+                    out[out_pos] = acc
 
 
 tensor_conv2d = njit(parallel=True, fastmath=True)(_tensor_conv2d)
