@@ -26,8 +26,8 @@ pytest tests -x -vv -m task3_2
 pytest tests -x -vv -m task3_3
 pytest tests -x -vv -m task3_4
 
-# echo "Module 4"
-# pytest tests -x -m task4_1
+echo "Module 4"
+pytest tests -x -m task4_1
 # pytest tests -x -m task4_2
 # pytest tests -x -m task4_3
 # pytest tests -x -m task4_4
