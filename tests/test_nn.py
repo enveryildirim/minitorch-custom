@@ -31,8 +31,20 @@ def test_avg(t: Tensor) -> None:
 @pytest.mark.task4_4
 @given(tensors(shape=(2, 3, 4)))
 def test_max(t: Tensor) -> None:
-    # TODO: Implement for Task 4.4.
-    raise NotImplementedError('Need to implement for Task 4.4')
+    out = minitorch.max(t, 1)
+    assert out.shape[0] == 2
+    assert out.shape[1] == 1
+    assert out.shape[2] == 4
+    for i in range(2):
+        for k in range(4):
+            vals = [t[i, j, k] for j in range(3)]
+            assert_close(out[i, 0, k], max(vals))
+    # Add noise to input using rand to avoid ties which break grad_check for max
+    # Add noise to input using rand to avoid ties which break grad_check for max
+    # (central difference expects 0.5 derivative at ties, but subgradient is split 1/k)
+    # Epsilon is 1e-6, so we need noise significantly larger than that.
+    t_clean = t + minitorch.rand(t.shape)
+    minitorch.grad_check(lambda t: minitorch.max(t, 1), t_clean)
 
 
 @pytest.mark.task4_4
