@@ -106,10 +106,16 @@ def test_two_grad(
 ) -> None:
     name, _, tensor_fn = fn
     t1, t2 = ts
-    if name in ["lt2", "gt2", "eq2"]:
-        # Calculate absolute difference
-        d = t1 - t2
-        # Since Tensor doesn't have abs(), use relu trick (x.abs() = x.relu() + (-x).relu())
+    if name == "lt2":
+        d = t1 + 1.25 - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+    if name == "gt2":
+        d = t1 + 1.25 - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+    if name == "eq2":
+        d = t1 - (t2 + 5.5)
         diff = d.relu() + (-d).relu()
         assume(diff.to_numpy().min() > 0.01)
     grad_check(tensor_fn, t1, t2)
@@ -125,19 +131,35 @@ def test_two_grad_broadcast(
     "Test the grad of a two argument function"
     name, base_fn, tensor_fn = fn
     t1, t2 = ts
-    if name in ["lt2", "gt2", "eq2"]:
-        d = t1 - t2
+    if name == "lt2":
+        d = t1 + 1.25 - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+    if name == "gt2":
+        d = t1 + 1.25 - t2
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+    if name == "eq2":
+        d = t1 - (t2 + 5.5)
         diff = d.relu() + (-d).relu()
         assume(diff.to_numpy().min() > 0.01)
     grad_check(tensor_fn, t1, t2)
 
     # broadcast check
-    if name in ["lt2", "gt2", "eq2"]:
-        d = t1.sum(0) - t2
+    if name in ["lt2", "gt2"]:
+        d = t1.sum(0) + 1.25 - t2
         diff = d.relu() + (-d).relu()
         assume(diff.to_numpy().min() > 0.01)
 
-        d2 = t1 - t2.sum(0)
+        d2 = t1 + 1.25 - t2.sum(0)
+        diff2 = d2.relu() + (-d2).relu()
+        assume(diff2.to_numpy().min() > 0.01)
+    if name == "eq2":
+        d = t1.sum(0) - (t2 + 5.5)
+        diff = d.relu() + (-d).relu()
+        assume(diff.to_numpy().min() > 0.01)
+
+        d2 = t1 - (t2.sum(0) + 5.5)
         diff2 = d2.relu() + (-d2).relu()
         assume(diff2.to_numpy().min() > 0.01)
 

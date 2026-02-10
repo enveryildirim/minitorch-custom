@@ -121,7 +121,7 @@ def test_two_derivative(
     # at the jump point.
     epsilon = 1e-5
     if name == "gt2" or name == "lt2":
-        if abs(t1.data + 1.2 - t2.data) < epsilon:
+        if abs(t1.data + 1.25 - t2.data) < epsilon:
             return
     if name == "eq2":
         if abs(t1.data - (t2.data + 5.5)) < epsilon:
