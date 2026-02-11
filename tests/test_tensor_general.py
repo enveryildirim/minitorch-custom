@@ -115,13 +115,13 @@ def test_two_grad(
     # and the gradient check will fail.
     if name == "lt2":
         d = t1 + 1.25 - t2
-        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+        assume((d.relu() + (-d).relu()).to_numpy().min() > 0.01)
     if name == "gt2":
         d = t1 + 1.25 - t2
-        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+        assume((d.relu() + (-d).relu()).to_numpy().min() > 0.01)
     if name == "eq2":
         d = t1 - (t2 + 5.5)
-        assume((d.relu() + (-d).relu()).sum().item() > 0.01)
+        assume((d.relu() + (-d).relu()).to_numpy().min() > 0.01)
     grad_check(tensor_fn, t1, t2)
 
 
@@ -342,6 +342,17 @@ def test_two_grad_broadcast(
     grad_check(tensor_fn, t1, t2)
 
     # broadcast check
+    if name in ["lt2", "gt2"]:
+        d = t1.sum(0) + 1.25 - t2
+        assume((d.relu() + (-d).relu()).to_numpy().min() > 0.01)
+        d2 = t1 + 1.25 - t2.sum(0)
+        assume((d2.relu() + (-d2).relu()).to_numpy().min() > 0.01)
+    if name == "eq2":
+        d = t1.sum(0) - (t2 + 5.5)
+        assume((d.relu() + (-d).relu()).to_numpy().min() > 0.01)
+        d2 = t1 - (t2.sum(0) + 5.5)
+        assume((d2.relu() + (-d2).relu()).to_numpy().min() > 0.01)
+
     grad_check(tensor_fn, t1.sum(0), t2)
     grad_check(tensor_fn, t1, t2.sum(0))
 
